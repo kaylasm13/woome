@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apply — Woo Me</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FAFAF8;
+      --card: #FFFFFF;
+      --border: #E8E2DA;
+      --text: #111111;
+      --muted: #777777;
+      --accent: #D94F6E;
+      --accent-light: #FFF0F3;
+      --cream: #F5F0EB;
+      --error: #C0392B;
+      --font-d: 'Playfair Display', Georgia, serif;
+      --font-b: 'Inter', system-ui, sans-serif;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-b);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ─────────────────────────────── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--font-d);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-back {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .nav-back:hover { color: var(--text); }
+
+    /* ── PROGRESS ────────────────────────── */
+    .progress-wrap {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 32px 24px 0;
+    }
+
+    .progress-steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .progress-step {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      transition: background .3s;
+    }
+    .progress-step.active { background: var(--accent); }
+
+    .progress-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ── FORM WRAPPER ────────────────────── */
+    .form-wrap {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── STEP ────────────────────────────── */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    .step-header { margin-bottom: 32px; }
+    .step-header h2 {
+      font-family: var(--font-d);
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step-header p { color: var(--muted); font-size: 15px; }
+
+    /* ── FIELDS ──────────────────────────── */
+    .field { margin-bottom: 20px; }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .optional {
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: var(--font-b);
+      font-size: 15px;
+      color: var(--text);
+      transition: border-color .15s, box-shadow .15s;
+      appearance: none;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(217, 79, 110, .12);
+    }
+
+    input.error, textarea.error, select.error {
+      border-color: var(--error);
+    }
+
+    textarea { resize: vertical; min-height: 100px; }
+
+    .field-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .field-error {
+      font-size: 12px;
+      color: var(--error);
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ── LINE HOP ────────────────────────── */
+    .linehop-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .linehop-choice {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .linehop-choice input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+    }
+
+    .linehop-label {
+      display: block;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      background: var(--card);
+    }
+
+    .linehop-choice input:checked + .linehop-label {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .linehop-label .icon { font-size: 28px; display: block; margin-bottom: 6px; }
+    .linehop-label strong { font-size: 14px; display: block; margin-bottom: 4px; }
+    .linehop-label span { font-size: 12px; color: var(--muted); }
+
+    .linehop-skip {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .linehop-skip button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: underline;
+      font-family: var(--font-b);
+    }
+    .linehop-skip button:hover { color: var(--text); }
+
+    .upload-area {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      background: var(--card);
+    }
+    .upload-area:hover { border-color: var(--accent); background: var(--accent-light); }
+    .upload-area.has-file { border-color: var(--accent); background: var(--accent-light); }
+
+    .upload-area input[type="file"] { display: none; }
+    .upload-icon { font-size: 32px; margin-bottom: 8px; }
+    .upload-area p { font-size: 14px; color: var(--muted); }
+    .upload-area p strong { color: var(--text); }
+    .file-name { font-size: 13px; color: var(--accent); font-weight: 600; margin-top: 8px; display: none; }
+
+    #linehop-upload-section { display: none; }
+
+    /* ── BUTTONS ─────────────────────────── */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .btn-next, .btn-submit {
+      flex: 1;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 16px;
+      border-radius: 100px;
+      font-family: var(--font-b);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s, transform .15s;
+    }
+    .btn-next:hover, .btn-submit:hover {
+      opacity: .88;
+      transform: translateY(-1px);
+    }
+    .btn-next:disabled, .btn-submit:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-back {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 16px 24px;
+      border-radius: 100px;
+      font-family: var(--font-b);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-back:hover { background: var(--cream); }
+
+    /* ── CONFIRMATION ────────────────────── */
+    #confirmation {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .confirm-icon { font-size: 56px; margin-bottom: 20px; }
+
+    #confirmation h2 {
+      font-family: var(--font-d);
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    #confirmation p { color: var(--muted); font-size: 16px; margin-bottom: 8px; }
+
+    .queue-position-badge {
+      display: inline-block;
+      background: var(--accent-light);
+      border: 1px solid rgba(217, 79, 110, .25);
+      border-radius: var(--radius);
+      padding: 20px 36px;
+      margin: 24px 0;
+    }
+
+    .queue-position-badge .pos-label {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 600;
+    }
+
+    .queue-position-badge .pos-number {
+      font-family: var(--font-d);
+      font-size: 64px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+
+    .queue-position-badge .pos-sub {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .confirm-note {
+      background: var(--cream);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-size: 14px;
+      color: var(--muted);
+      text-align: left;
+      margin-top: 24px;
+    }
+
+    /* ── ERROR STATE ─────────────────────── */
+    #submit-error {
+      display: none;
+      background: #FFF5F5;
+      border: 1px solid #F5C6CB;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--error);
+      margin-top: 16px;
+    }
+
+    /* ── RESPONSIVE ──────────────────────── */
+    @media (max-width: 500px) {
+      nav { padding: 20px 24px; }
+      .field-row { grid-template-columns: 1fr; }
+      .linehop-options { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">Woo Me</a>
+    <a href="index.html" class="nav-back">← Back</a>
+  </nav>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-steps">
+      <div class="progress-step active" id="prog-1"></div>
+      <div class="progress-step" id="prog-2"></div>
+      <div class="progress-step" id="prog-3"></div>
+      <div class="progress-step" id="prog-4"></div>
+    </div>
+    <div class="progress-label" id="progress-label">Step 1 of 4 — About you</div>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-wrap" id="form-wrap">
+
+    <!-- ── STEP 1: ABOUT YOU ───────────── -->
+    <div class="step active" id="step-1">
+      <div class="step-header">
+        <h2>First, who are you?</h2>
+        <p>The basics. I'll actually read these.</p>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="name">Name <span style="color:var(--accent)">*</span></label>
+          <input type="text" id="name" placeholder="First name is fine" autocomplete="given-name" />
+          <div class="field-error" id="err-name">Please enter your name.</div>
+        </div>
+        <div class="field">
+          <label for="age">Age <span style="color:var(--accent)">*</span></label>
+          <input type="number" id="age" placeholder="e.g. 28" min="18" max="99" />
+          <div class="field-error" id="err-age">Please enter a valid age.</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="location">Where are you based? <span style="color:var(--accent)">*</span></label>
+        <input type="text" id="location" placeholder="City, State" autocomplete="address-level2" />
+        <div class="field-error" id="err-location">Please enter your location.</div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email <span style="color:var(--accent)">*</span></label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+        <div class="field-hint">Only used to send you a booking link if you're approved.</div>
+        <div class="field-error" id="err-email">Please enter a valid email.</div>
+      </div>
+
+      <div class="field">
+        <label for="source">How did you find this link? <span style="color:var(--accent)">*</span></label>
+        <select id="source">
+          <option value="">— Select one —</option>
+          <option value="instagram">Instagram</option>
+          <option value="twitter_x">Twitter / X</option>
+          <option value="tiktok">TikTok</option>
+          <option value="friend">A friend sent it to me</option>
+          <option value="dating_app">Dating app</option>
+          <option value="reddit">Reddit</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="field-error" id="err-source">Please let me know how you found this.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-next" onclick="nextStep(1)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: THE DATE ────────────── -->
+    <div class="step" id="step-2">
+      <div class="step-header">
+        <h2>Plan the date.</h2>
+        <p>Show me you've actually thought about this.</p>
+      </div>
+
+      <div class="field">
+        <label for="dateIdea">What's your date idea? <span style="color:var(--accent)">*</span></label>
+        <textarea id="dateIdea" placeholder="Be specific. 'Dinner and a walk' is a start. What kind of dinner? Where's the walk?" rows="3"></textarea>
+        <div class="field-error" id="err-dateIdea">Tell me your date idea.</div>
+      </div>
+
+      <div class="field">
+        <label for="pitch">Why do you want to go out with me? <span style="color:var(--accent)">*</span></label>
+        <textarea id="pitch" placeholder="Your actual pitch. Be genuine — I can tell when someone's winging it." rows="4"></textarea>
+        <div class="field-error" id="err-pitch">This one's required.</div>
+      </div>
+
+      <div class="field">
+        <label>When are you available? <span style="color:var(--accent)">*</span></label>
+        <p class="field-hint" style="margin-bottom:10px">Give me up to 3 windows — e.g. "Saturday evenings in July" or "any weeknight after 7pm." I'll pick what works.</p>
+        <input type="text" id="avail1" placeholder="Option 1 (required)" style="margin-bottom:10px" />
+        <div class="field-error" id="err-avail1">At least one availability window is required.</div>
+        <input type="text" id="avail2" placeholder="Option 2 (optional)" style="margin-bottom:10px" />
+        <input type="text" id="avail3" placeholder="Option 3 (optional)" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="prevStep(2)">← Back</button>
+        <button class="btn-next" onclick="nextStep(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: REAL TALK ───────────── -->
+    <div class="step" id="step-3">
+      <div class="step-header">
+        <h2>Real talk.</h2>
+        <p>Anything I should know about you going in? This is optional but appreciated.</p>
+      </div>
+
+      <div class="field">
+        <label for="dealbreakers">Things I should know <span class="optional">(optional)</span></label>
+        <textarea id="dealbreakers"
+          placeholder="Deal-breakers, quirks, things that might matter, dietary restrictions if you're planning dinner — whatever feels relevant."
+          rows="5"></textarea>
+        <div class="field-hint">This won't disqualify you. Honesty upfront is actually a green flag.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="prevStep(3)">← Back</button>
+        <button class="btn-next" onclick="nextStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: LINE HOP ────────────── -->
+    <div class="step" id="step-4">
+      <div class="step-header">
+        <h2>Want to skip ahead?</h2>
+        <p>Totally optional. There are exactly two ways to get priority review.</p>
+      </div>
+
+      <div class="linehop-options">
+        <label class="linehop-choice">
+          <input type="radio" name="lineHop" value="cashapp" onchange="showUpload('cashapp')" />
+          <span class="linehop-label">
+            <span class="icon">💸</span>
+            <strong>Send $50 on Cash App</strong>
+            <span>to $itsmekayla282622 — upload your screenshot below</span>
+          </span>
+        </label>
+        <label class="linehop-choice">
+          <input type="radio" name="lineHop" value="therapist" onchange="showUpload('therapist')" />
+          <span class="linehop-label">
+            <span class="icon">🛋️</span>
+            <strong>Therapist reference</strong>
+            <span>Official letter, must be on letterhead</span>
+          </span>
+        </label>
+      </div>
+
+      <div class="linehop-skip">
+        <button onclick="clearLineHop()">No thanks, I'll wait my turn</button>
+      </div>
+
+      <!-- Upload section (shown after selecting an option) -->
+      <div id="linehop-upload-section">
+        <div class="field">
+          <label id="upload-label">Upload your file <span style="color:var(--accent)">*</span></label>
+          <div class="upload-area" id="upload-area" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept="image/*,.pdf" onchange="handleFileSelect(this)" />
+            <div class="upload-icon">📎</div>
+            <p><strong>Click to upload</strong> or drag and drop</p>
+            <p>JPG, PNG, or PDF — max 10 MB</p>
+            <div class="file-name" id="file-name"></div>
+          </div>
+          <div class="field-error" id="err-file">Please upload your file to continue.</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-back" onclick="prevStep(4)">← Back</button>
+        <button class="btn-submit" id="submit-btn" onclick="submitForm()">Submit application →</button>
+      </div>
+
+      <div id="submit-error">Something went wrong. Please try again, or email me directly.</div>
+    </div>
+
+  </div><!-- /form-wrap -->
+
+  <!-- CONFIRMATION -->
+  <div id="confirmation">
+    <div class="confirm-icon">🌹</div>
+    <h2>Application received.</h2>
+    <p>You're officially in the running.</p>
+
+    <div class="queue-position-badge">
+      <div class="pos-label">Your position</div>
+      <div class="pos-number" id="confirm-position">#—</div>
+      <div class="pos-sub">in the queue</div>
+    </div>
+
+    <p>I'll review applications personally and reach out if I'm interested.</p>
+
+    <div class="confirm-note">
+      <strong>What happens next:</strong> If you're approved, you'll get an email with a booking link to schedule the actual date. If you submitted a line-hop, I'll review that separately.
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypoJ4tey25wNxQsctHoU1QISL6M5D8zurvRMElWf_WK7yIk6zBbaCJwOfo3avCpFl4Vg/exec'; // ← Replace after deploying Apps Script
+
+    let currentStep = 1;
+    const totalSteps = 4;
+    const stepLabels = ['About you', 'The date', 'Real talk', 'Skip the line?'];
+
+    let selectedFile = null;
+    let lineHopType = '';
+
+    // ── NAVIGATION ────────────────────────
+    function goToStep(n) {
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      currentStep = n;
+      document.getElementById(`step-${currentStep}`).classList.add('active');
+
+      // Update progress bar
+      for (let i = 1; i <= totalSteps; i++) {
+        const el = document.getElementById(`prog-${i}`);
+        if (el) el.classList.toggle('active', i <= currentStep);
+      }
+
+      document.getElementById('progress-label').textContent =
+        `Step ${currentStep} of ${totalSteps} — ${stepLabels[currentStep - 1]}`;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextStep(from) {
+      if (validateStep(from)) goToStep(from + 1);
+    }
+
+    function prevStep(from) {
+      goToStep(from - 1);
+    }
+
+    // ── VALIDATION ────────────────────────
+    function setError(id, visible) {
+      const el = document.getElementById(`err-${id}`);
+      const input = document.getElementById(id);
+      if (el) el.classList.toggle('visible', visible);
+      if (input) input.classList.toggle('error', visible);
+      return visible;
+    }
+
+    function validateStep(step) {
+      let valid = true;
+
+      function check(id, condition) {
+        if (condition) { setError(id, true); valid = false; }
+        else setError(id, false);
+      }
+
+      if (step === 1) {
+        check('name', !v('name'));
+        const age = parseInt(document.getElementById('age').value);
+        check('age', !age || age < 18 || age > 99);
+        check('location', !v('location'));
+        const email = document.getElementById('email').value.trim();
+        check('email', !email || !email.includes('@'));
+        check('source', !v('source'));
+      }
+
+      if (step === 2) {
+        check('dateIdea', !v('dateIdea'));
+        check('pitch', !v('pitch'));
+        check('avail1', !v('avail1'));
+      }
+
+      if (step === 4 && lineHopType && !selectedFile) {
+        document.getElementById('err-file').classList.add('visible');
+        valid = false;
+      } else {
+        document.getElementById('err-file').classList.remove('visible');
+      }
+
+      return valid;
+    }
+
+    function v(id) {
+      return document.getElementById(id).value.trim().length > 0;
+    }
+
+    // ── LINE HOP ──────────────────────────
+    function showUpload(type) {
+      lineHopType = type;
+      const section = document.getElementById('linehop-upload-section');
+      section.style.display = 'block';
+      const label = document.getElementById('upload-label');
+      label.textContent = type === 'cashapp'
+        ? 'Upload your Cash App screenshot *'
+        : 'Upload your therapist letter *';
+    }
+
+    function clearLineHop() {
+      lineHopType = '';
+      selectedFile = null;
+      document.querySelectorAll('input[name="lineHop"]').forEach(r => r.checked = false);
+      document.getElementById('linehop-upload-section').style.display = 'none';
+      document.getElementById('file-name').style.display = 'none';
+      document.getElementById('upload-area').classList.remove('has-file');
+    }
+
+    function handleFileSelect(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File must be under 10 MB.');
+        return;
+      }
+      selectedFile = file;
+      const nameEl = document.getElementById('file-name');
+      nameEl.textContent = '✓ ' + file.name;
+      nameEl.style.display = 'block';
+      document.getElementById('upload-area').classList.add('has-file');
+      document.getElementById('err-file').classList.remove('visible');
+    }
+
+    // Drag and drop
+    const uploadArea = document.getElementById('upload-area');
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = 'var(--accent)'; });
+    uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = ''; });
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        document.getElementById('fileInput').files = e.dataTransfer.files;
+        handleFileSelect(document.getElementById('fileInput'));
+      }
+    });
+
+    // ── SUBMIT ────────────────────────────
+    async function submitForm() {
+      if (!validateStep(4)) return;
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      document.getElementById('submit-error').style.display = 'none';
+
+      const payload = {
+        name: document.getElementById('name').value.trim(),
+        age: document.getElementById('age').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        source: document.getElementById('source').value,
+        dateIdea: document.getElementById('dateIdea').value.trim(),
+        pitch: document.getElementById('pitch').value.trim(),
+        avail1: document.getElementById('avail1').value.trim(),
+        avail2: document.getElementById('avail2').value.trim(),
+        avail3: document.getElementById('avail3').value.trim(),
+        dealbreakers: document.getElementById('dealbreakers').value.trim(),
+        lineHopType: lineHopType,
+        lineHopFile: null,
+      };
+
+      // Encode file as base64
+      if (selectedFile && lineHopType) {
+        try {
+          const base64 = await fileToBase64(selectedFile);
+          payload.lineHopFile = {
+            data: base64,
+            mimeType: selectedFile.type,
+            name: selectedFile.name,
+          };
+        } catch (err) {
+          console.error('File encode error:', err);
+        }
+      }
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        // Show confirmation
+        document.getElementById('form-wrap').style.display = 'none';
+        document.getElementById('progress-wrap').style.display = 'none';
+        const conf = document.getElementById('confirmation');
+        conf.style.display = 'block';
+        document.getElementById('confirm-position').textContent = `#${data.queuePosition}`;
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Submit application →';
+        const errEl = document.getElementById('submit-error');
+        errEl.style.display = 'block';
+        errEl.textContent = 'Something went wrong: ' + (err.message || 'Please try again.');
+      }
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+
+</body>
+</html>
