@@ -617,38 +617,35 @@
 
     function validateStep(step) {
       let valid = true;
+
+      function check(id, condition) {
+        if (condition) { setError(id, true); valid = false; }
+        else setError(id, false);
+      }
+
       if (step === 1) {
-        if (!v('name')) valid = setError('name', true) && false || false;
-        else setError('name', false);
-
+        check('name', !v('name'));
         const age = parseInt(document.getElementById('age').value);
-        if (!age || age < 18 || age > 99) valid = setError('age', true) && false || false;
-        else setError('age', false);
-
-        if (!v('location')) valid = setError('location', true) && false || false;
-        else setError('location', false);
-
+        check('age', !age || age < 18 || age > 99);
+        check('location', !v('location'));
         const email = document.getElementById('email').value.trim();
-        if (!email || !email.includes('@')) valid = setError('email', true) && false || false;
-        else setError('email', false);
+        check('email', !email || !email.includes('@'));
+        check('source', !v('source'));
+      }
 
-        if (!v('source')) valid = setError('source', true) && false || false;
-        else setError('source', false);
-      }
       if (step === 2) {
-        if (!v('dateIdea')) valid = setError('dateIdea', true) && false || false;
-        else setError('dateIdea', false);
-        if (!v('pitch')) valid = setError('pitch', true) && false || false;
-        else setError('pitch', false);
-        if (!v('avail1')) valid = setError('avail1', true) && false || false;
-        else setError('avail1', false);
+        check('dateIdea', !v('dateIdea'));
+        check('pitch', !v('pitch'));
+        check('avail1', !v('avail1'));
       }
+
       if (step === 4 && lineHopType && !selectedFile) {
         document.getElementById('err-file').classList.add('visible');
         valid = false;
       } else {
         document.getElementById('err-file').classList.remove('visible');
       }
+
       return valid;
     }
 
