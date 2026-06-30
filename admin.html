@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Woo Me</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F4F4F2;
+      --card: #FFFFFF;
+      --border: #E4E0D8;
+      --text: #111111;
+      --muted: #777777;
+      --accent: #D94F6E;
+      --accent-light: #FFF0F3;
+      --green: #1A7F4B;
+      --green-bg: #EDFAF3;
+      --red: #C0392B;
+      --red-bg: #FFF5F5;
+      --yellow: #9A6B00;
+      --yellow-bg: #FFFBEB;
+      --font: 'Inter', system-ui, sans-serif;
+      --radius: 10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ───────────────────────────── */
+    #login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+
+    .login-card .logo {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -.01em;
+    }
+
+    .login-card .subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 32px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 600;
+    }
+
+    .login-card input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: var(--font);
+      font-size: 14px;
+      margin-bottom: 12px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .login-card input:focus { border-color: var(--accent); }
+
+    .login-card button {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .login-card button:hover { opacity: .85; }
+
+    #login-error {
+      font-size: 13px;
+      color: var(--red);
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* ── ADMIN LAYOUT ────────────────────── */
+    #admin-screen { display: none; }
+
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-logo { font-weight: 700; font-size: 16px; }
+    .header-logo span { color: var(--accent); }
+
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    .refresh-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-family: var(--font);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .refresh-btn:hover { background: var(--bg); }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .logout-btn:hover { color: var(--text); }
+
+    /* ── STATS BAR ───────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: 12px;
+      padding: 20px 32px;
+      overflow-x: auto;
+    }
+
+    .stat-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .stat-chip .num {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .stat-chip .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+    .stat-chip.accent .num { color: var(--accent); }
+    .stat-chip.green .num { color: var(--green); }
+    .stat-chip.yellow .num { color: var(--yellow); }
+
+    /* ── FILTERS ─────────────────────────── */
+    .filters {
+      display: flex;
+      gap: 8px;
+      padding: 0 32px 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .filter-btn.active {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    /* ── CARDS ───────────────────────────── */
+    .cards {
+      padding: 0 32px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      gap: 12px;
+    }
+
+    .card-header:hover { background: #FAFAFA; }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-name {
+      font-weight: 600;
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .badge-pending { background: var(--yellow-bg); color: var(--yellow); }
+    .badge-approved { background: var(--green-bg); color: var(--green); }
+    .badge-rejected { background: var(--red-bg); color: var(--red); }
+    .badge-linehop { background: var(--accent-light); color: var(--accent); }
+
+    .queue-num {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    .chevron {
+      color: var(--muted);
+      font-size: 12px;
+      transition: transform .2s;
+    }
+    .card.expanded .chevron { transform: rotate(180deg); }
+
+    /* ── CARD BODY ───────────────────────── */
+    .card-body {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 20px;
+    }
+    .card.expanded .card-body { display: block; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .detail-item .lbl {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .detail-item .val {
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .section-divider {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin: 16px 0 12px;
+    }
+
+    .long-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
+
+    /* ── LINEHOP SECTION ─────────────────── */
+    .linehop-section {
+      background: var(--accent-light);
+      border: 1px solid rgba(217, 79, 110, .2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .linehop-section .lbl { font-size: 12px; font-weight: 600; color: var(--accent); }
+    .linehop-section .type { font-size: 14px; font-weight: 500; }
+
+    .file-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .file-link:hover { text-decoration: underline; }
+
+    /* ── ACTION BUTTONS ──────────────────── */
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid;
+      transition: opacity .15s;
+    }
+    .action-btn:hover { opacity: .75; }
+    .action-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .btn-approve { background: var(--green-bg); color: var(--green); border-color: #A8DFC4; }
+    .btn-reject { background: var(--red-bg); color: var(--red); border-color: #F5C6CB; }
+    .btn-calendly { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-linehop-approve { background: var(--accent-light); color: var(--accent); border-color: rgba(217,79,110,.3); }
+
+    /* ── EMPTY / LOADING ─────────────────── */
+    .empty {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty h3 { font-size: 16px; margin-bottom: 4px; color: var(--text); }
+
+    .loading {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 0 16px; }
+      .stats-bar { padding: 16px; }
+      .filters { padding: 0 16px 12px; }
+      .cards { padding: 0 16px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="logo">Woo Me</div>
+      <div class="subtitle">Admin Panel</div>
+      <input type="password" id="password-input" placeholder="Password" onkeydown="if(event.key==='Enter')login()" />
+      <button onclick="login()">Sign in →</button>
+      <div id="login-error">Wrong password. Try again.</div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="admin-screen">
+    <header>
+      <div class="header-logo">Woo Me <span>/ Admin</span></div>
+      <div class="header-right">
+        <button class="refresh-btn" onclick="loadSubmissions()">↻ Refresh</button>
+        <button class="logout-btn" onclick="logout()">Sign out</button>
+      </div>
+    </header>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+      <div class="stat-chip accent">
+        <div class="num" id="stat-total">—</div>
+        <div class="lbl">Total applications</div>
+      </div>
+      <div class="stat-chip">
+        <div class="num" id="stat-pending">—</div>
+        <div class="lbl">Pending review</div>
+      </div>
+      <div class="stat-chip green">
+        <div class="num" id="stat-approved">—</div>
+        <div class="lbl">Approved</div>
+      </div>
+      <div class="stat-chip yellow">
+        <div class="num" id="stat-linehop">—</div>
+        <div class="lbl">Line-hop pending</div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pending', this)">Pending</button>
+      <button class="filter-btn" onclick="setFilter('approved', this)">Approved</button>
+      <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
+      <button class="filter-btn" onclick="setFilter('linehop', this)">⚡ Line-hop</button>
+    </div>
+
+    <!-- SUBMISSIONS -->
+    <div class="cards" id="cards-container">
+      <div class="loading">Loading submissions...</div>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbypoJ4tey25wNxQsctHoU1QISL6M5D8zurvRMElWf_WK7yIk6zBbaCJwOfo3avCpFl4Vg/exec
+'; // ← Replace after deploying Apps Script
+    const SESSION_KEY = 'wm_admin_pw';
+
+    let allSubmissions = [];
+    let activeFilter = 'all';
+    let adminPassword = '';
+
+    // ── AUTH ──────────────────────────────
+    function login() {
+      const pw = document.getElementById('password-input').value.trim();
+      if (!pw) return;
+      adminPassword = pw;
+      sessionStorage.setItem(SESSION_KEY, pw);
+      document.getElementById('login-error').style.display = 'none';
+      loadSubmissions();
+    }
+
+    function logout() {
+      sessionStorage.removeItem(SESSION_KEY);
+      adminPassword = '';
+      document.getElementById('admin-screen').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('password-input').value = '';
+    }
+
+    // Auto-login if session exists
+    window.addEventListener('load', () => {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      if (saved) {
+        adminPassword = saved;
+        loadSubmissions();
+      }
+    });
+
+    // ── LOAD DATA ─────────────────────────
+    async function loadSubmissions() {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '<div class="loading">Loading...</div>';
+
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=submissions&password=${encodeURIComponent(adminPassword)}`);
+        const data = await res.json();
+
+        if (data.error === 'Unauthorized') {
+          document.getElementById('login-error').style.display = 'block';
+          document.getElementById('login-error').textContent = 'Wrong password.';
+          sessionStorage.removeItem(SESSION_KEY);
+          return;
+        }
+
+        // Show admin panel
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-screen').style.display = 'block';
+
+        allSubmissions = data.submissions || [];
+        updateStats();
+        renderCards();
+      } catch (err) {
+        container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Couldn't load submissions</h3><p>${err.message}</p></div>`;
+      }
+    }
+
+    // ── STATS ─────────────────────────────
+    function updateStats() {
+      document.getElementById('stat-total').textContent = allSubmissions.length;
+      document.getElementById('stat-pending').textContent = allSubmissions.filter(s => s.status === 'pending').length;
+      document.getElementById('stat-approved').textContent = allSubmissions.filter(s => s.status === 'approved').length;
+      document.getElementById('stat-linehop').textContent = allSubmissions.filter(s => s.lineHopStatus === 'pending').length;
+    }
+
+    // ── FILTER ────────────────────────────
+    function setFilter(filter, btn) {
+      activeFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCards();
+    }
+
+    // ── RENDER ────────────────────────────
+    function renderCards() {
+      const container = document.getElementById('cards-container');
+      let filtered = allSubmissions;
+
+      if (activeFilter === 'pending') filtered = allSubmissions.filter(s => s.status === 'pending');
+      else if (activeFilter === 'approved') filtered = allSubmissions.filter(s => s.status === 'approved');
+      else if (activeFilter === 'rejected') filtered = allSubmissions.filter(s => s.status === 'rejected');
+      else if (activeFilter === 'linehop') filtered = allSubmissions.filter(s => s.lineHopStatus === 'pending');
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty"><div class="empty-icon">🕊️</div><h3>Nothing here</h3><p>No submissions match this filter.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => cardHTML(s)).join('');
+    }
+
+    function cardHTML(s) {
+      const initials = (s.name || '?').charAt(0).toUpperCase();
+      const date = s.timestamp ? new Date(s.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+
+      const statusBadge = {
+        pending: '<span class="badge badge-pending">Pending</span>',
+        approved: '<span class="badge badge-approved">Approved</span>',
+        rejected: '<span class="badge badge-rejected">Rejected</span>',
+      }[s.status] || '';
+
+      const lineHopBadge = s.lineHopStatus === 'pending'
+        ? '<span class="badge badge-linehop">⚡ Line-hop</span>'
+        : s.lineHopStatus === 'approved'
+        ? '<span class="badge badge-linehop">⚡ Hopped</span>'
+        : '';
+
+      const lineHopSection = s.lineHopType ? `
+        <div class="linehop-section">
+          <div>
+            <div class="lbl">⚡ Line-hop request</div>
+            <div class="type">${s.lineHopType === 'cashapp' ? '💸 Cash App $50' : '🛋️ Therapist letter'} — Status: <strong>${s.lineHopStatus || 'pending'}</strong></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            ${s.fileUrl ? `<a href="${s.fileUrl}" target="_blank" class="file-link">📎 View file →</a>` : '<span style="color:var(--muted);font-size:13px">No file</span>'}
+            ${s.lineHopStatus === 'pending' ? `<button class="action-btn btn-linehop-approve" onclick="approveLineHop('${s.id}', this)">Approve line-hop</button>` : ''}
+          </div>
+        </div>
+      ` : '';
+
+      const availRow = [s.avail1, s.avail2, s.avail3].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
+      return `
+        <div class="card" id="card-${s.id}">
+          <div class="card-header" onclick="toggleCard('${s.id}')">
+            <div class="card-left">
+              <div class="avatar">${initials}</div>
+              <div>
+                <div class="card-name">${esc(s.name || '—')}</div>
+                <div class="card-meta">${esc(s.age || '?')} · ${esc(s.location || '?')} · ${date}</div>
+              </div>
+            </div>
+            <div class="card-right">
+              ${lineHopBadge}
+              ${statusBadge}
+              <div class="queue-num">#${s.queuePosition || '?'}</div>
+              <div class="chevron">▼</div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="detail-grid">
+              <div class="detail-item"><div class="lbl">Email</div><div class="val">${esc(s.email || '—')}</div></div>
+              <div class="detail-item"><div class="lbl">How they found you</div><div class="val">${esc(s.source || '—')}</div></div>
+              <div class="detail-item"><div class="lbl">Queue position</div><div class="val">#${s.queuePosition || '?'}</div></div>
+              <div class="detail-item"><div class="lbl">Line-hop</div><div class="val">${s.lineHopType ? (s.lineHopType === 'cashapp' ? '💸 Cash App' : '🛋️ Therapist') : 'None'}</div></div>
+            </div>
+
+            <div class="section-divider">Date plan</div>
+            <div class="lbl" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px">Date idea</div>
+            <div class="long-text">${esc(s.dateIdea || '—')}</div>
+
+            <div class="lbl" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px">Availability</div>
+            <div class="long-text" style="margin-bottom:0">${availRow || '—'}</div>
+
+            <div class="section-divider" style="margin-top:16px">Their pitch</div>
+            <div class="long-text">${esc(s.pitch || '—')}</div>
+
+            ${s.dealbreakers ? `
+              <div class="section-divider">Deal-breakers / FYI</div>
+              <div class="long-text">${esc(s.dealbreakers)}</div>
+            ` : ''}
+
+            ${lineHopSection}
+
+            <div class="actions">
+              ${s.status !== 'approved' ? `<button class="action-btn btn-approve" onclick="updateStatus('${s.id}', 'approved', this)">✓ Approve</button>` : ''}
+              ${s.status !== 'rejected' ? `<button class="action-btn btn-reject" onclick="updateStatus('${s.id}', 'rejected', this)">✗ Reject</button>` : ''}
+              <button class="action-btn btn-calendly" onclick="sendCalendly('${s.id}', '${esc(s.name)}', this)">🗓️ Send Calendly link</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleCard(id) {
+      document.getElementById(`card-${id}`).classList.toggle('expanded');
+    }
+
+    function esc(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── ACTIONS ───────────────────────────
+    async function updateStatus(id, status, btn) {
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=update_status&id=${id}&status=${status}&password=${encodeURIComponent(adminPassword)}`);
+        const data = await res.json();
+        if (data.success) {
+          const sub = allSubmissions.find(s => s.id === id);
+          if (sub) sub.status = status;
+          updateStats();
+          renderCards();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+          btn.disabled = false;
+        }
+      } catch (err) {
+        alert('Request failed: ' + err.message);
+        btn.disabled = false;
+      }
+    }
+
+    async function approveLineHop(id, btn) {
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=approve_linehop&id=${id}&password=${encodeURIComponent(adminPassword)}`);
+        const data = await res.json();
+        if (data.success) {
+          const sub = allSubmissions.find(s => s.id === id);
+          if (sub) sub.lineHopStatus = 'approved';
+          updateStats();
+          renderCards();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+          btn.disabled = false;
+        }
+      } catch (err) {
+        alert('Request failed: ' + err.message);
+        btn.disabled = false;
+      }
+    }
+
+    async function sendCalendly(id, name, btn) {
+      if (!confirm(`Send Calendly link to ${name}? This will also mark them as approved.`)) return;
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=send_calendly&id=${id}&password=${encodeURIComponent(adminPassword)}`);
+        const data = await res.json();
+        if (data.success) {
+          const sub = allSubmissions.find(s => s.id === id);
+          if (sub) sub.status = 'approved';
+          updateStats();
+          renderCards();
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+          btn.disabled = false;
+          btn.textContent = '🗓️ Send Calendly link';
+        }
+      } catch (err) {
+        alert('Request failed: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '🗓️ Send Calendly link';
+      }
+    }
+  </script>
+
+</body>
+</html>
